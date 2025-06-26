@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace JobApplicationTrackerAPI.Models
 {
@@ -7,6 +8,7 @@ namespace JobApplicationTrackerAPI.Models
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [SwaggerIgnore]
         public int Id { get; set; }
 
         [Required]

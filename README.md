@@ -1,6 +1,9 @@
 # JobApplicationTrackerAPI
 ## Setup
-1. dotnet add package Microsoft.EntityFrameworkCore.Sqlite
-2. dotnet add package Microsoft.EntityFrameworkCore.Design
-3. dotnet add package Swashbuckle.AspNetCore
+1. clone repo
+2. install references
+3. dotnet tool install --global dotnet-ef 
+4. dotnet ef migrations add InitialCreate
+5. dotnet ef database update
+6. dotnet run
 
