@@ -1,8 +1,8 @@
 using JobApplicationTrackerAPI.Models;
 
-namespace JobApplicationTrackerAPI.Repositories
+namespace JobApplicationTrackerAPI.Data.Repositories
 {
-    public interface IJobApplicationRepository
+    public interface IJobApplicationRepo
     {
         Task<IEnumerable<JobApplication>> GetAllJobApplications();
         Task<JobApplication> GetJobApplicationById(int id);
