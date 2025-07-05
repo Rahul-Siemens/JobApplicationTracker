@@ -1,0 +1,6 @@
+JobApplicationTrackerAPI/bin/
+JobApplicationTrackerAPI/obj/
+.DS_Store
+JobApplicationTrackerAPI/Migrations/
+JobApplicationTrackerAPI/jobapplicationdata.db
+job-application-tracker-app
