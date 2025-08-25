@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.AspNetCore.Identity;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace JobApplicationTrackerAPI.Models
@@ -21,5 +22,8 @@ namespace JobApplicationTrackerAPI.Models
         public string Status { get; set; }
 
         public DateTime DateApplied { get; set; } = DateTime.Now;
+
+        public string UserId { get; set; } = string.Empty;
+        public IdentityUser User { get; set; } = null;
     }
 }

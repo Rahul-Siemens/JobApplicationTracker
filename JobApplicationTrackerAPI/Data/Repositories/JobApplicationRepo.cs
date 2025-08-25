@@ -13,11 +13,13 @@ namespace JobApplicationTrackerAPI.Data.Repositories
             _context = context;
         }
 
-        public async Task<IEnumerable<JobApplication>> GetAllJobApplications() =>
-            await _context.JobApplications.ToListAsync();
+        public async Task<IEnumerable<JobApplication>> GetAllJobApplications(string userId) =>
+            await _context.JobApplications.Where(job => job.UserId == userId).ToListAsync();
 
-        public async Task<JobApplication> GetJobApplicationById(int id) =>
-            await _context.JobApplications.FindAsync(id);
+        public async Task<JobApplication> GetJobApplicationById(string userId, int id) =>
+            await _context.JobApplications.FirstOrDefaultAsync(job =>
+                job.UserId == userId && job.Id == id
+            );
 
         public async Task<JobApplication> AddJobApplication(JobApplication application)
         {
@@ -38,7 +40,7 @@ namespace JobApplicationTrackerAPI.Data.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task<bool> JobApplicationExist(int id) =>
-            await _context.JobApplications.AnyAsync(a => a.Id == id);
+        public async Task<bool> JobApplicationExist(string userId, int id) =>
+            await _context.JobApplications.AnyAsync(a => a.Id == id && a.UserId == userId);
     }
 }

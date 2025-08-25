@@ -1,13 +1,16 @@
 using System.Diagnostics;
 using System.Net;
+using System.Security.Claims;
 using JobApplicationTrackerAPI.Data.Repositories;
 using JobApplicationTrackerAPI.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace JobApplicationTrackerAPI.Controllers
 {
     [ApiController]
     [Route("applications")]
+    [Authorize]
     public class JobApplicationsController : ControllerBase
     {
         private readonly IJobApplicationRepo _repository;
@@ -21,7 +24,8 @@ namespace JobApplicationTrackerAPI.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var apps = await _repository.GetAllJobApplications();
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var apps = await _repository.GetAllJobApplications(userId);
             return Ok(apps);
         }
 
@@ -30,7 +34,8 @@ namespace JobApplicationTrackerAPI.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            var app = await _repository.GetJobApplicationById(id);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var app = await _repository.GetJobApplicationById(userId, id);
             if (app == null)
             {
                 return NotFound(new { message = $"Job application with ID {id} not found." });
@@ -52,6 +57,7 @@ namespace JobApplicationTrackerAPI.Controllers
 
             try
             {
+                application.UserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 var created = await _repository.AddJobApplication(application);
                 return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
             }
@@ -78,9 +84,11 @@ namespace JobApplicationTrackerAPI.Controllers
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-
-            if (!await _repository.JobApplicationExist(id))
-                return NotFound(new { message = $"Job application with ID {id} not found." });
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!await _repository.JobApplicationExist(userId, id))
+                return NotFound(
+                    new { message = $"Job application with ID {id} not found for User." }
+                );
 
             application.Id = id;
             try
@@ -101,12 +109,15 @@ namespace JobApplicationTrackerAPI.Controllers
                 );
             }
         }
-        
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            if (!await _repository.JobApplicationExist(id))
-                return NotFound(new { message = $"Job application with ID {id} not found." });
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!await _repository.JobApplicationExist(userId, id))
+                return NotFound(
+                    new { message = $"Job application with ID {id} not found for User." }
+                );
 
             try
             {
