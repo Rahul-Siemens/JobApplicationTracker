@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using JobApplicationTrackerAPI.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -28,6 +29,12 @@ namespace JobApplicationTrackerAPI.Data.Repositories
         public async Task UpdateJobApplication(JobApplication application)
         {
             _context.Entry(application).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task DeleteJobApplication(int id)
+        {
+            _context.JobApplications.Remove(new JobApplication { Id = id });
             await _context.SaveChangesAsync();
         }
 

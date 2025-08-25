@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Net;
 using JobApplicationTrackerAPI.Data.Repositories;
 using JobApplicationTrackerAPI.Models;
@@ -96,6 +97,31 @@ namespace JobApplicationTrackerAPI.Controllers
                         message = $"Error updating the job application with ID {id}.",
                         details = ex.Message,
                         stackTrace = ex?.InnerException?.StackTrace,
+                    }
+                );
+            }
+        }
+        
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            if (!await _repository.JobApplicationExist(id))
+                return NotFound(new { message = $"Job application with ID {id} not found." });
+
+            try
+            {
+                await _repository.DeleteJobApplication(id);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(
+                    500,
+                    new
+                    {
+                        message = $"Error deleting the job application with ID {id} .",
+                        details = ex.Message,
+                        ex?.InnerException?.StackTrace,
                     }
                 );
             }

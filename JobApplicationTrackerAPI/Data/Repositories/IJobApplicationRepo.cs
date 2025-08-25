@@ -9,5 +9,6 @@ namespace JobApplicationTrackerAPI.Data.Repositories
         Task<JobApplication> AddJobApplication(JobApplication application);
         Task UpdateJobApplication(JobApplication application);
         Task<bool> JobApplicationExist(int id);
+        Task DeleteJobApplication(int id);
     }
 }
