@@ -44,6 +44,27 @@ builder
                     Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])
                 ),
             };
+        options.Events = new JwtBearerEvents
+        {
+            OnAuthenticationFailed = context =>
+            {
+                Console.WriteLine("Token invalid: " + context.Exception.Message);
+                return Task.CompletedTask;
+            },
+            OnChallenge = context =>
+            {
+                if (!context.Response.HasStarted)
+                {
+                    context.HandleResponse();
+                    context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                    context.Response.ContentType = "application/json";
+                    return context.Response.WriteAsync(
+                        "{\"error\": \"Unauthorized - invalid or expired token\"}"
+                    );
+                }
+                return Task.CompletedTask;
+            },
+        };
     });
 
 builder.Services.AddAuthorization();
@@ -60,35 +81,31 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseAuthentication();
-app.UseAuthorization();
-
 app.UseCors(options => options.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 
-app.MapControllers();
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.UseExceptionHandler(errorApp =>
 {
     errorApp.Run(async context =>
     {
-        context.Response.StatusCode = 500;
-        context.Response.ContentType = "application/json";
-
-        var error = context.Features.Get<IExceptionHandlerFeature>();
-        if (error != null)
+        if (!context.Response.HasStarted)
         {
-            var ex = error.Error;
+            context.Response.StatusCode = 500;
+            context.Response.ContentType = "application/json";
 
-            await context.Response.WriteAsJsonAsync(
-                new
-                {
-                    message = "An unexpected error occurred.",
-                    error = ex.Message,
-                    stackTrace = ex?.StackTrace,
-                }
-            );
+            var error = context.Features.Get<IExceptionHandlerFeature>();
+            if (error != null)
+            {
+                await context.Response.WriteAsJsonAsync(
+                    new { message = "An unexpected error occurred.", error = error.Error.Message }
+                );
+            }
         }
     });
 });
+
+app.MapControllers();
 
 app.Run();
